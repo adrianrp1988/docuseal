@@ -1,0 +1,30 @@
+<h1>LDAP Provisioning Conflicts</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>LDAP DN</th>
+      <th>Existing User</th>
+      <th>Mapped Account</th>
+      <th>Status</th>
+      <th>Created</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @conflicts.each do |c| %>
+      <tr>
+        <td><%= c.email %></td>
+        <td><%= c.ldap_dn %></td>
+        <td><%= c.existing_user ? link_to(c.existing_user.friendly_name, edit_user_path(c.existing_user)) : '-' %></td>
+        <td><%= c.mapped_account ? link_to(c.mapped_account.name, account_path(c.mapped_account)) : '-' %></td>
+        <td><%= c.status %></td>
+        <td><%= l(c.created_at, format: :short) %></td>
+        <td><%= link_to 'View', admin_ldap_provisioning_conflict_path(c) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @conflicts %>

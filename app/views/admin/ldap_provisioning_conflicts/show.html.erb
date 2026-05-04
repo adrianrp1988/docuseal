@@ -1,0 +1,30 @@
+<h1>Provisioning Conflict</h1>
+
+<p>
+  <strong>Email:</strong> <%= @conflict.email %><br>
+  <strong>LDAP DN:</strong> <%= @conflict.ldap_dn %><br>
+  <strong>Status:</strong> <%= @conflict.status %>
+</p>
+
+<h2>LDAP Attributes</h2>
+<pre><%= JSON.pretty_generate(@conflict.ldap_attributes || {}) %></pre>
+
+<% if @conflict.existing_user %>
+  <p>Existing user: <%= link_to @conflict.existing_user.friendly_name, edit_user_path(@conflict.existing_user) %></p>
+<% end %>
+
+<% if @conflict.mapped_account %>
+  <p>Mapped account: <%= link_to @conflict.mapped_account.name, account_path(@conflict.mapped_account) %></p>
+<% end %>
+
+<div class="actions">
+  <% if @conflict.existing_user %>
+    <%= button_to 'Link to existing user', approve_link_admin_ldap_provisioning_conflict_path(@conflict), method: :post, class: 'btn' %>
+  <% end %>
+
+  <% if @conflict.mapped_account %>
+    <%= button_to 'Provision user', approve_provision_admin_ldap_provisioning_conflict_path(@conflict), method: :post, class: 'btn' %>
+  <% end %>
+
+  <%= button_to 'Reject', reject_admin_ldap_provisioning_conflict_path(@conflict), method: :post, class: 'btn btn-danger' %>
+</div>
