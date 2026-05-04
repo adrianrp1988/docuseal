@@ -14,6 +14,10 @@ gem 'cancancan'
 gem 'csv', require: false
 gem 'csv-safe', require: false
 gem 'devise'
+# LDAP library for optional LDAP authentication
+gem 'net-ldap', '~> 0.18'
+# Optional: if you prefer a Devise plugin instead of custom logic:
+# gem 'devise_ldap_authenticatable', '~> 0.8'
 gem 'devise-two-factor'
 gem 'dotenv', require: false
 gem 'email_typo'
