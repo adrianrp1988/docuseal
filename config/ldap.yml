@@ -1,0 +1,26 @@
+default: &default
+  enabled: <%= ENV['LDAP_ENABLED'] == 'true' %>
+  host: <%= ENV['LDAP_HOST'] || 'localhost' %>
+  port: <%= (ENV['LDAP_PORT'] || 389).to_i %>
+  encryption: <%= ENV['LDAP_ENCRYPTION'] || 'none' %> # none, start_tls, simple_tls
+  base: <%= ENV['LDAP_BASE_DN'] || 'dc=example,dc=org' %>
+  bind_dn: <%= ENV['LDAP_BIND_DN'] %>
+  bind_password: <%= ENV['LDAP_BIND_PASSWORD'] %>
+  uid_attribute: <%= ENV['LDAP_UID_ATTRIBUTE'] || 'uid' %>
+  create_users: <%= ENV['LDAP_CREATE_USERS'] == 'true' %>
+  fallback_to_db: <%= ENV['LDAP_FALLBACK'] != 'false' %>
+  account_attribute: <%= ENV['LDAP_ACCOUNT_ATTRIBUTE'] || 'memberOf' %>
+  # LDAP_ACCOUNT_MAPPING expects a JSON string in ENV that maps attribute values to account identifiers
+  # e.g. { "cn=acme,ou=groups,dc=example,dc=org": "acme" }
+  # mapping is read from ENV['LDAP_ACCOUNT_MAPPING'] at runtime by SessionsController
+  disabled_attribute: <%= ENV['LDAP_DISABLED_ATTRIBUTE'] %>
+  disabled_values: <%= ENV['LDAP_DISABLED_VALUES'] %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
