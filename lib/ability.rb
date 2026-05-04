@@ -4,6 +4,11 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
+    return unless user
+
+    # Admins can manage provisioning conflicts and full system-level resources
+    can :manage, ProvisioningConflict if user.role == 'admin'
+
     can %i[read create update], Template, Abilities::TemplateConditions.collection(user) do |template|
       Abilities::TemplateConditions.entity(template, user:, ability: 'manage')
     end
@@ -16,6 +21,7 @@ class Ability
     can :manage, User, account_id: user.account_id
     can :manage, EncryptedConfig, account_id: user.account_id
     can :manage, EncryptedUserConfig, user_id: user.id
+    can :manage, EmailMessage, author_id: user.id
     can :manage, AccountConfig, account_id: user.account_id
     can :manage, UserConfig, user_id: user.id
     can :manage, Account, id: user.account_id

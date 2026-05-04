@@ -7,7 +7,7 @@ module Admin
     before_action :set_conflict, only: %i[show approve_link approve_provision reject]
 
     def index
-      @conflicts = ProvisioningConflict.order(created_at: :desc).page(params[:page])
+      @conflicts = ProvisioningConflict.accessible_by(current_ability).order(created_at: :desc).page(params[:page])
     end
 
     def show; end
@@ -71,11 +71,12 @@ module Admin
 
     def set_conflict
       @conflict = ProvisioningConflict.find(params[:id])
+      authorize! :manage, @conflict
     end
 
     def ensure_admin!
-      return if current_user&.role == 'admin'
-
+      authorize! :manage, ProvisioningConflict
+    rescue CanCan::AccessDenied
       redirect_to root_path, alert: 'Not authorized'
     end
   end
