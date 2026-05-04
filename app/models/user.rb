@@ -1,51 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: users
-#
-#  id                     :bigint           not null, primary key
-#  archived_at            :datetime
-#  confirmation_sent_at   :datetime
-#  confirmation_token     :string
-#  confirmed_at           :datetime
-#  consumed_timestep      :integer
-#  current_sign_in_at     :datetime
-#  current_sign_in_ip     :string
-#  email                  :string           not null
-#  encrypted_password     :string           not null
-#  failed_attempts        :integer          default(0), not null
-#  first_name             :string
-#  last_name              :string
-#  last_sign_in_at        :datetime
-#  last_sign_in_ip        :string
-#  locked_at              :datetime
-#  otp_required_for_login :boolean          default(FALSE), not null
-#  otp_secret             :string
-#  remember_created_at    :datetime
-#  reset_password_sent_at :datetime
-#  reset_password_token   :string
-#  role                   :string           not null
-#  sign_in_count          :integer          default(0), not null
-#  unconfirmed_email      :string
-#  unlock_token           :string
-#  uuid                   :string           not null
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  account_id             :bigint           not null
-#
-# Indexes
-#
-#  index_users_on_account_id            (account_id)
-#  index_users_on_email                 (email) UNIQUE
-#  index_users_on_reset_password_token  (reset_password_token) UNIQUE
-#  index_users_on_unlock_token          (unlock_token) UNIQUE
-#  index_users_on_uuid                  (uuid) UNIQUE
-#
-# Foreign Keys
-#
-#  fk_rails_...  (account_id => accounts.id)
-#
 class User < ApplicationRecord
   ROLES = [
     ADMIN_ROLE = 'admin'
@@ -120,5 +74,25 @@ class User < ApplicationRecord
     else
       email
     end
+  end
+
+  # Return true if this account is backed by LDAP (boolean column :ldap_user)
+  def ldap_user?
+    self.ldap_user == true
+  end
+
+  # Devise calls this to decide whether to validate presence/format of password.
+  # For LDAP users we skip local password validations so we can provision accounts without a password.
+  def password_required?
+    return false if ldap_user?
+
+    super
+  end
+
+  # Make the stored password unusable for local authentication.
+  # We write an encrypted random value so the DB doesn't contain a nil/blank value
+  # and local sign-in will fail even if fallback is accidentally enabled.
+  def set_unusable_password!
+    self.encrypted_password = Devise::Encryptor.digest(self.class, SecureRandom.hex(32))
   end
 end
